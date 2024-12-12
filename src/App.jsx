@@ -1,26 +1,86 @@
-import { useState } from 'react';
+import { useState } from "react";
+import axios from "axios";
+
+// Utility function to calculate file hash
+const calculateFileHash = async (file) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const sha256Hash = await crypto.subtle.digest("SHA-256", arrayBuffer);
+  const hashArray = Array.from(new Uint8Array(sha256Hash));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hashHex;
+};
 
 function App() {
+  const PINATA_API_KEY = "fe3260c6973d4b9d12f7";
+  const PINATA_SECRET_API_KEY = "911a5084cfdc9d1ac64bd7be6d50cf3cd44288f944d456666f63b9cab0875b69";
+
   const [document, setDocument] = useState(null);
-  const [documentType, setDocumentType] = useState('');
+  const [documentType, setDocumentType] = useState("");
+  const [fileHash, setFileHash] = useState("");
   const [savedDocuments, setSavedDocuments] = useState([]);
 
-  const handleDocumentUpload = (e) => {
+  // Handle file upload
+  const handleDocumentUpload = async (e) => {
     const file = e.target.files[0];
-    setDocument(file);
+    if (file) {
+      setDocument(file);
+      const hash = await calculateFileHash(file);
+      setFileHash(hash);
+    }
   };
 
-  const handleSaveDocument = () => {
+  // Handle saving document to Pinata
+  const handleSaveDocument = async () => {
     if (document && documentType) {
-      setSavedDocuments((prev) => [
-        ...prev,
-        { file: document, type: documentType },
-      ]);
-      setDocument(null);
-      setDocumentType('');
-      alert('Document saved successfully!');
+      try {
+        const formData = new FormData();
+        formData.append("file", document);
+
+        const metadata = JSON.stringify({
+          name: document.name,
+          keyvalues: {
+            type: documentType,
+            fileHash: fileHash,
+          },
+        });
+        formData.append("pinataMetadata", metadata);
+
+        const options = JSON.stringify({
+          cidVersion: 1,
+        });
+        formData.append("pinataOptions", options);
+
+        const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+          maxBodyLength: "Infinity",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            pinata_api_key: PINATA_API_KEY,
+            pinata_secret_api_key: PINATA_SECRET_API_KEY,
+          },
+        });
+
+        const cid = res.data.IpfsHash;
+
+        setSavedDocuments((prev) => [
+          ...prev,
+          {
+            file: document,
+            type: documentType,
+            cid,
+            hash: fileHash,
+          },
+        ]);
+
+        setDocument(null);
+        setDocumentType("");
+        setFileHash("");
+        alert(`Document saved successfully! CID: ${cid}`);
+      } catch (error) {
+        console.error("Error uploading document to Pinata:", error);
+        alert("Failed to upload document to Pinata.");
+      }
     } else {
-      alert('Please upload a document and select a type.');
+      alert("Please upload a document and select a type.");
     }
   };
 
@@ -39,6 +99,13 @@ function App() {
               onChange={handleDocumentUpload}
               className="file-input file-input-bordered w-full"
             />
+            {fileHash && (
+              <div className="bg-gray-50 p-3 rounded">
+                <p className="text-sm font-mono break-all">
+                  <strong>File Hash (SHA-256):</strong> {fileHash}
+                </p>
+              </div>
+            )}
             <select
               id="documentType"
               value={documentType}
@@ -50,10 +117,7 @@ function App() {
               <option value="Word">Word</option>
               <option value="Image">Image</option>
             </select>
-            <button
-              onClick={handleSaveDocument}
-              className="btn btn-primary"
-            >
+            <button onClick={handleSaveDocument} className="btn btn-primary">
               Save Document
             </button>
           </div>
@@ -67,7 +131,7 @@ function App() {
               savedDocuments.map((doc, index) => (
                 <div
                   key={index}
-                  className="bg-gray-100 p-4 rounded-md shadow flex justify-between items-center"
+                  className="bg-gray-100 p-4 rounded-md shadow flex flex-col space-y-2"
                 >
                   <div>
                     <p>
@@ -76,21 +140,28 @@ function App() {
                     <p>
                       <strong>Type:</strong> {doc.type}
                     </p>
+                    <p>
+                      <strong>CID:</strong> {doc.cid}
+                    </p>
+                    <p className="font-mono text-sm break-all">
+                      <strong>File Hash:</strong> {doc.hash}
+                    </p>
                   </div>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() =>
-                      alert(`Retrieved: ${doc.file.name} (${doc.type})`)
-                    }
-                  >
-                    View
-                  </button>
+                  <div>
+                    <a
+                      href={`https://gateway.pinata.cloud/ipfs/${doc.cid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-link"
+                    >
+                      View on Pinata
+                    </a>
+                  </div>
                 </div>
               ))
             ) : (
               <p className="text-gray-500">No documents saved yet.</p>
             )}
-            
           </div>
         </section>
       </main>
