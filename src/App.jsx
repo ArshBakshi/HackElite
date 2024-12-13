@@ -6,13 +6,16 @@ const calculateFileHash = async (file) => {
   const arrayBuffer = await file.arrayBuffer();
   const sha256Hash = await crypto.subtle.digest("SHA-256", arrayBuffer);
   const hashArray = Array.from(new Uint8Array(sha256Hash));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   return hashHex;
 };
 
 function App() {
   const PINATA_API_KEY = "fe3260c6973d4b9d12f7";
-  const PINATA_SECRET_API_KEY = "911a5084cfdc9d1ac64bd7be6d50cf3cd44288f944d456666f63b9cab0875b69";
+  const PINATA_SECRET_API_KEY =
+    "911a5084cfdc9d1ac64bd7be6d50cf3cd44288f944d456666f63b9cab0875b69";
 
   const [document, setDocument] = useState(null);
   const [documentType, setDocumentType] = useState("");
@@ -50,14 +53,18 @@ function App() {
         });
         formData.append("pinataOptions", options);
 
-        const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
-          maxBodyLength: "Infinity",
-          headers: {
-            "Content-Type": "multipart/form-data",
-            pinata_api_key: PINATA_API_KEY,
-            pinata_secret_api_key: PINATA_SECRET_API_KEY,
-          },
-        });
+        const res = await axios.post(
+          "https://api.pinata.cloud/pinning/pinFileToIPFS",
+          formData,
+          {
+            maxBodyLength: "Infinity",
+            headers: {
+              "Content-Type": "multipart/form-data",
+              pinata_api_key: PINATA_API_KEY,
+              pinata_secret_api_key: PINATA_SECRET_API_KEY,
+            },
+          }
+        );
 
         const cid = res.data.IpfsHash;
 
@@ -125,7 +132,9 @@ function App() {
 
         {/* Retrieve Section */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Retrieve Saved Documents</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Retrieve Saved Documents
+          </h2>
           <div className="space-y-4">
             {savedDocuments.length > 0 ? (
               savedDocuments.map((doc, index) => (
@@ -169,4 +178,4 @@ function App() {
   );
 }
 
-export default App; //hi
+export default App; //bye
