@@ -1,87 +1,75 @@
 import React, { useState } from "react";
-import { UserIcon, KeyIcon } from "lucide-react";
+import { KeyIcon, LockIcon } from "lucide-react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const validateInputs = () => {
-    if (!username || !password) {
-      setError("Both username and password are required.");
-      return false;
-    }
-    return true;
-  };
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setIsSuccess(false);
 
-    if (!validateInputs()) return;
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          username,
+          password,
+        }
+      );
 
-    setIsLoading(true);
+      setSuccessMessage(response.data.message);
+      setErrorMessage("");
 
-    // Simulate a login attempt
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-      console.log("Login attempt:", { username, password, rememberMe });
-      
-      // After successful login, redirect to home page
       setTimeout(() => {
-        navigate('/home');
-      }, 1000); // Short delay to show success message
-      
-    }, 2000);
+        navigate("/home");
+      }, 1000);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message);
+        setSuccessMessage("");
+      } else {
+        setErrorMessage("Server error");
+        setSuccessMessage("");
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-800 via-purple-800 to-gray-900 flex items-center justify-center p-6">
-      <div className="card w-96 bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl rounded-lg relative">
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-purple-700 p-4 rounded-full">
-          <UserIcon className="text-white w-12 h-12" />
-        </div>
-        <div className="card-body space-y-4 pt-12">
+    <div className="min-h-screen relative overflow-hidden bg-[#0D1117] flex items-center justify-center p-4">
+      {/* Enhanced background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20" />
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
+      </div>
+
+      {/* Original card and form */}
+      <div className="card w-96 bg-base-100 shadow-xl relative z-10">
+        <div className="card-body space-y-6">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-purple-400 animate-pulse">SafXest</h2>
-            <p className="text-gray-500">Secure IPFS File Storage</p>
+            <h2 className="text-3xl font-bold text-primary">SafXest</h2>
+            <p className="text-base-content/70">Secure IPFS File Storage</p>
           </div>
-
-          {error && (
-            <div className="alert alert-error bg-red-300 text-red-900 p-4 rounded-lg animate-shake">
-              <span>{error}</span>
-            </div>
-          )}
-
-          {isSuccess && (
-            <div className="alert alert-success bg-green-300 text-green-900 p-4 rounded-lg flex items-center animate-bounce">
-              <span>Login successful! Redirecting...</span>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-gray-400">Username</span>
+                <span className="label-text text-base-content">Username</span>
               </label>
-              <div className="flex items-center bg-gray-800 rounded-lg transition-all duration-300 focus-within:ring-2 focus-within:ring-purple-600">
-                <span className="p-2 text-gray-400">
-                  <UserIcon />
+              <div className="input-group">
+                <span className="bg-base-200">
+                  <KeyIcon className="text-base-content" />
                 </span>
                 <input
                   type="text"
                   placeholder="Enter your username"
-                  className="input input-bordered w-full bg-gray-800 text-gray-300 
-                    focus:outline-none 
-                    hover:bg-gray-700 
-                    transition-colors duration-300"
+                  className="input input-bordered w-full focus:outline-primary"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -91,19 +79,16 @@ const LoginPage = () => {
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-gray-400">Password</span>
+                <span className="label-text text-base-content">Password</span>
               </label>
-              <div className="flex items-center bg-gray-800 rounded-lg transition-all duration-300 focus-within:ring-2 focus-within:ring-purple-600">
-                <span className="p-2 text-gray-400">
-                  <KeyIcon />
+              <div className="input-group">
+                <span className="bg-base-200">
+                  <LockIcon className="text-base-content" />
                 </span>
                 <input
                   type="password"
                   placeholder="Enter your password"
-                  className="input input-bordered w-full bg-gray-800 text-gray-300 
-                    focus:outline-none 
-                    hover:bg-gray-700 
-                    transition-colors duration-300"
+                  className="input input-bordered w-full focus:outline-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -111,46 +96,27 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label cursor-pointer">
-                <span className="label-text text-gray-400">Remember me</span>
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-purple 
-                    hover:ring-2 hover:ring-purple-600 
-                    focus:ring-2 focus:ring-purple-600 
-                    transition-all duration-300"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              </label>
-            </div>
-
-            <div className="form-control mt-4">
+            <div className="form-control mt-6">
               <button
                 type="submit"
-                className={`btn bg-purple-700 text-white w-full flex justify-center items-center 
-                  ${isLoading
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-purple-800 hover:scale-105 active:scale-95 transition-all duration-300"}
-                  focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50`}
-                disabled={isLoading}
+                className="btn btn-primary hover:bg-primary-focus transition-colors duration-300"
               >
-                {isLoading ? (
-                  <span className="animate-spin mr-2">Loading...</span>
-                ) : (
-                  "Login"
-                )}
+                Login
               </button>
             </div>
           </form>
 
+          {errorMessage && (
+            <div className="text-center text-red-500">{errorMessage}</div>
+          )}
+          {successMessage && (
+            <div className="text-center text-green-500">{successMessage}</div>
+          )}
+
           <div className="text-center">
             <a
               href="#"
-              className="link text-purple-500 hover:text-purple-600 text-sm 
-                hover:underline transition-colors duration-300 
-                focus:outline-none focus:text-purple-700 focus:underline"
+              className="link link-hover text-base-content/70 text-sm"
             >
               Forgot Password?
             </a>
