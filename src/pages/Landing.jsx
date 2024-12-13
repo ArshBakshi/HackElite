@@ -135,7 +135,7 @@ const BlockchainLandingPage = () => {
         <div className="flex items-center space-x-4">
           <ServerIcon className="w-10 h-10 text-cyan-400" />
           <h1 className="text-3xl font-bold tracking-tight text-cyan-300">
-            QuantumVault
+            BlockSafe
           </h1>
         </div>
         <div className="flex items-center space-x-6">

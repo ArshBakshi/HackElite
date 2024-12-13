@@ -18,7 +18,8 @@ export default function HomePage() {
   const [hoveredDoc, setHoveredDoc] = useState(null);
 
   const PINATA_API_KEY = "fe3260c6973d4b9d12f7";
-  const PINATA_SECRET_API_KEY = "911a5084cfdc9d1ac64bd7be6d50cf3cd44288f944d456666f63b9cab0875b69";
+  const PINATA_SECRET_API_KEY =
+    "911a5084cfdc9d1ac64bd7be6d50cf3cd44288f944d456666f63b9cab0875b69";
 
   useEffect(() => {
     fetchSavedDocuments();
@@ -27,12 +28,15 @@ export default function HomePage() {
   const fetchSavedDocuments = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://api.pinata.cloud/data/pinList?status=pinned", {
-        headers: {
-          pinata_api_key: PINATA_API_KEY,
-          pinata_secret_api_key: PINATA_SECRET_API_KEY,
-        },
-      });
+      const response = await fetch(
+        "https://api.pinata.cloud/data/pinList?status=pinned",
+        {
+          headers: {
+            pinata_api_key: PINATA_API_KEY,
+            pinata_secret_api_key: PINATA_SECRET_API_KEY,
+          },
+        }
+      );
       const data = await response.json();
       const pinnedItems = data.rows.map((item) => ({
         cid: item.ipfs_pin_hash,
@@ -201,11 +205,15 @@ export default function HomePage() {
                 </div>
                 {hoveredDoc?.cid === doc.cid && (
                   <div className="absolute left-full top-0 ml-2 z-50 w-64 p-4 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700">
-                    <p className="text-sm font-medium text-gray-200 mb-2">{doc.name}</p>
+                    <p className="text-sm font-medium text-gray-200 mb-2">
+                      {doc.name}
+                    </p>
                     <FileText className="w-12 h-12 text-blue-400 mx-auto mb-2" />
                     <div className="text-xs text-gray-400">
                       <p>Type: {doc.type}</p>
-                      <p className="mt-1 font-mono break-all">Hash: {doc.hash.slice(0, 20)}...</p>
+                      <p className="mt-1 font-mono break-all">
+                        Hash: {doc.hash.slice(0, 20)}...
+                      </p>
                     </div>
                   </div>
                 )}
@@ -218,7 +226,7 @@ export default function HomePage() {
       <div className="relative flex-1 p-6">
         <header className="mb-8 p-6 bg-gradient-to-r from-blue-600/10 to-purple-600/10 backdrop-blur-lg rounded-xl border border-gray-800/50">
           <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            SafXest
+            BlockSafe
           </h1>
         </header>
 
@@ -240,9 +248,7 @@ export default function HomePage() {
             </div>
 
             {uploadStatus && (
-              <div className="p-2 text-sm text-cyan-400">
-                {uploadStatus}
-              </div>
+              <div className="p-2 text-sm text-cyan-400">{uploadStatus}</div>
             )}
 
             {fileHash && (

@@ -53,7 +53,7 @@ const LoginPage = () => {
       <div className="card w-96 bg-base-100 shadow-xl relative z-10">
         <div className="card-body space-y-6">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-primary">SafXest</h2>
+            <h2 className="text-3xl font-bold text-primary">BlockSafe</h2>
             <p className="text-base-content/70">Secure IPFS File Storage</p>
           </div>
 
