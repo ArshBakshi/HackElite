@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { UserIcon, KeyIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +33,12 @@ const LoginPage = () => {
       setIsLoading(false);
       setIsSuccess(true);
       console.log("Login attempt:", { username, password, rememberMe });
-      // TODO: Implement blockchain authentication logic
+      
+      // After successful login, redirect to home page
+      setTimeout(() => {
+        navigate('/home');
+      }, 1000); // Short delay to show success message
+      
     }, 2000);
   };
 
@@ -55,7 +62,7 @@ const LoginPage = () => {
 
           {isSuccess && (
             <div className="alert alert-success bg-green-300 text-green-900 p-4 rounded-lg flex items-center animate-bounce">
-              <span>Login successful!</span>
+              <span>Login successful! Redirecting...</span>
             </div>
           )}
 
