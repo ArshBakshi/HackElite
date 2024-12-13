@@ -14,6 +14,7 @@
     "daisyui": "^4.12.20",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "framer-motion": "^11.14.3",
     "ipfs-http-client": "^60.0.1",
     "lucide-react": "^0.468.0",
     "mongodb": "^6.12.0",
