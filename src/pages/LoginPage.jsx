@@ -1,14 +1,39 @@
 import React, { useState } from "react";
 import { KeyIcon, LockIcon } from "lucide-react";
+import axios from "axios"; // Install axios: npm install axios
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement blockchain authentication logic
-    console.log("Login attempt:", { username, password });
+
+    try {
+      // Send login request to backend
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          username,
+          password,
+        }
+      );
+
+      // Handle successful login
+      setSuccessMessage(response.data.message);
+      setErrorMessage(""); // Clear any previous error message
+    } catch (error) {
+      // Handle error
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message);
+        setSuccessMessage(""); // Clear any previous success message
+      } else {
+        setErrorMessage("Server error");
+        setSuccessMessage(""); // Clear any previous success message
+      }
+    }
   };
 
   return (
@@ -68,6 +93,13 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
+
+          {errorMessage && (
+            <div className="text-center text-red-500">{errorMessage}</div>
+          )}
+          {successMessage && (
+            <div className="text-center text-green-500">{successMessage}</div>
+          )}
 
           <div className="text-center">
             <a
